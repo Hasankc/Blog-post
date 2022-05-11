@@ -21,6 +21,7 @@ app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+
 mongoose.connect("mongodb://localhost:27017/blogDB", { useNewUrlParser: true });
 
 const postSchema = {
@@ -31,7 +32,12 @@ const postSchema = {
 const Post = mongoose.model("Post", postSchema);
 
 app.get("/", (req, res) => {
-  res.render("home", { startingContent: homeStartingContent, posts: posts });
+  Post.find({}, (err, posts) =>{
+    res.render("home", {
+      startingContent: homeStartingContent,
+      posts: posts
+      });
+  });
 });
 app.get("/contact", (req, res) => {
   res.render("contact", { contact: contactContent });
@@ -48,17 +54,22 @@ app.post("/compose", (req, res) => {
     content: req.body.postBody,
   });
 
-  post.save()
+  post.save(function(err){
+    if(!err){
+      res.redirect("/");
+    }
+  })
 
-  res.redirect("/");
+  
 });
 
-app.get("/posts/:postName", (req, res) => {
-  const requestedTitle = _.lowerCase(req.params.postName);
-  posts.forEach(function (post) {
-    const storedTitle = _.lowerCase(post.title);
+app.get("/posts/:postId", (req, res) => {
+  const requestedPostId = req.params.postId;
 
-    if (storedTitle === requestedTitle) {
+  const requestedTitle = _.lowerCase(req.params.postName);
+  Post.findOne({_id: requestedPostId}, (err, post)=>{ 
+    const storedTitle = _.lowerCase(post.title);
+   {
       res.render("post", {
         title: post.title,
         content: post.content,
@@ -66,7 +77,6 @@ app.get("/posts/:postName", (req, res) => {
     }
   });
 });
-
 
 
 

@@ -1,5 +1,5 @@
 # Blog-post
-This project issimple Blog app can create a daily post
+This project is simple Blog app can create a daily post
 ## Technologies
  <ul>
   <li>JavaScript</li>
